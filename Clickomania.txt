@@ -1,0 +1,115 @@
+# import library
+from tkinter import *
+import random
+from functools import partial
+
+# creating display
+display = Tk()
+display.geometry("800x750")
+display.title('Roshan')
+display.configure(bg='#fff8e9')
+
+# button creation
+buttons_list = []
+score = 25
+color_match = []
+guess = 0
+
+
+def match_it(btn: object, color: str):
+    global lost
+    global guess
+    global score
+    global score_L
+    global color_match
+
+    if btn['background'] == color:
+        btn['background'] = 'white'
+        color_match.pop()
+
+    else:
+        btn['background'] = color
+        color_match.append(btn)
+
+    if len(color_match) == 2:
+        if color_match[0]['background'] == color_match[1]['background']:
+            color_match[0].config(command='')
+            color_match[1].config(command='')
+            color_match[0]['text'] = color
+            color_match[1]['text'] = color
+            guess += 1
+        else:
+            color_match[0]['background'] = 'grey'
+            color_match[1]['background'] = 'grey'
+            score -= 1
+            show_score(score)
+
+            if score == 0:
+                for btn in buttons_list:
+                    btn.destroy()
+
+                lost.pack(side=TOP, expand=True, fill=BOTH)
+
+        if guess == 7:
+            for btn in buttons_list:
+                btn.destroy()
+
+            won.pack(side=TOP, expand=True, fill=BOTH)
+
+        color_match.clear()
+
+
+def show_score(game_score: int):
+    score_L['text'] = f"Score: {game_score}"
+
+
+def play():
+    global score
+    global guess
+    global lost
+    global won
+    global frame1
+    global score_L
+    global buttons_list
+    global color_match
+
+    color_match = []
+    guess = 0
+    score = 25
+    colors = ['purple', 'gold', 'red', 'green', 'lightblue', 'orange', 'yellow', 'brown'] * 2
+
+    show_score(score)
+
+    if len(buttons_list):
+        won.destroy()
+        lost.destroy()
+        for btn in buttons_list:
+            btn.destroy()
+
+    won = Label(master=frame3, text="Congrats, You WON!", font=("calibre", 40))
+    lost = Label(master=frame3, text="Lost, Better Luck Next Time :)", font=("calibre", 40), )
+
+    for j in range(4):
+        for k in range(4):
+            color_random = random.randint(0, len(colors) - 1)
+            color = colors[color_random]
+
+            button1 = Button(master=frame3, text=f"!!", width=12, height=5, background='grey',
+                             activebackground=color)
+            buttons_list.append(button1)
+            button1.grid(row=j, column=k, padx=20, pady=20)
+            buttons_list[-1]['command'] = partial(match_it, button1, color)
+            colors.pop(color_random)
+
+frame1 = Frame(master=display, pady=5, padx=16, bg="#fff8e9")
+frame1.pack(expand=True)
+Label(master=frame1, text="Clickomania", font="calibre 32 bold", fg='#5a9a6d', bg="#fff8e9").pack()
+frame2 = Frame(master=display, pady=5, padx=20, bg="#fff8e9")
+frame2.pack(expand=True)
+score_L = Label(master=frame2, text=f"Score: {score}", font='calibre 25 bold', fg='#78a44e', bg="#fff8e9")
+score_L.pack(side=LEFT,padx=80)
+Button(master=frame2, text="Reset", command=play, fg='white', bg="#9eb9bf", font="calibre 20 bold", padx=10, pady=3).pack(side=RIGHT,padx=80)
+frame3 = Frame(master=display, pady=5, padx=20, bg="#fff8e9")
+frame3.pack(expand=True)
+play()
+display.mainloop()
